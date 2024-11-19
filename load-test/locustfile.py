@@ -1,9 +1,8 @@
-import requests, random
+import requests, random, uuid
 from locust import HttpUser, task, between
 
 class UserBehavior(HttpUser):
     wait_time = between(1, 2)
-    MAX_PAGING_ROW = 300
     SEARCH_WORD = ["저스틴 비버", "콜드 플레이", "애미넴", "KE$HA", "찰리푸스", "두아 리파"]
     SORT = ["RECENT", "POPULAR"]
     ONLY_OPEN_SCHEDULE = [True, False]
@@ -194,12 +193,9 @@ class UserBehavior(HttpUser):
     @task(3)
     def get_task_12(self):
         """백엔드 서버 API GET 12 : 공연 상세 조회"""
-        headers = {'Authorization': f'Bearer {self.token}'}
+        headers = {'Authorization': f'Bearer {self.token}', "Device-Token" : f"{uuid.uuid4()}"}
         if self.showCursor:
-            params = {"Device-Token" : "test"}
-            self.client.get(f"/api/v1/shows/{self.showCursor}", params=params, headers=headers)
-        else:
-             print('cannot call /api/v1/shows/(showId)')
+            self.client.get(f"/api/v1/shows/{self.showCursor}", headers=headers)
     
     @task(3)
     def get_task_13(self):
@@ -208,8 +204,6 @@ class UserBehavior(HttpUser):
         if self.showCursor:
             params = {"ticketingApiType" : "NORMAL"}
             self.client.get(f"/api/v1/shows/{self.showCursor}/alert/reservations", params=params, headers=headers)
-        else:
-             print('cannot call /api/v1/shows/(showId)/alert/reservations')
 
     @task(3)
     def get_task_14(self):
@@ -276,49 +270,53 @@ class UserBehavior(HttpUser):
     def post_task_2(self):
         """백엔드 서버 API POST 2 : 장르 구독 취소하기"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        body = {'genreIds' : [self.genreCursor]}
-        self.client.post("/api/v1/genres/unsubscribe", json=body, headers=headers)
+        if self.genreCursor:
+            body = {'genreIds' : [self.genreCursor]}
+            self.client.post("/api/v1/genres/unsubscribe", json=body, headers=headers)
 
     @task(2)
     def post_task_3(self):
         """백엔드 서버 API POST 3 : 장르 구독하기"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        body = {'genreIds' : [self.genreCursor]}
-        self.client.post("/api/v1/genres/subscribe", json=body, headers=headers)
+        if self.genreCursor:
+            body = {'genreIds' : [self.genreCursor]}
+            self.client.post("/api/v1/genres/subscribe", json=body, headers=headers)
 
     @task(2)
     def post_task_4(self):
         """백엔드 서버 API POST 4 : 아티스트 구독 취소하기"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        body = {'artistIds' : [self.artistCursor]}
-        self.client.post("/api/v1/artists/unsubscribe", json=body, headers=headers)
+        if self.artistCursor:
+            body = {'artistIds' : [self.artistCursor]}
+            self.client.post("/api/v1/artists/unsubscribe", json=body, headers=headers)
 
     @task(2)
     def post_task_5(self):
         """백엔드 서버 API POST 5 : 아티스트 구독하기"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        body = {'artistIds' : [self.artistCursor]}
-        self.client.post("/api/v1/artists/subscribe", json=body, headers=headers)
+        if self.artistCursor:
+            body = {'artistIds' : [self.artistCursor]}
+            self.client.post("/api/v1/artists/subscribe", json=body, headers=headers)
 
     @task(2)
-    def post_task_5(self):
-        """백엔드 서버 API POST 5 : 아티스트 구독하기"""
+    def post_task_6(self):
+        """백엔드 서버 API POST 6 : 아티스트 관심 취소"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        self.client.post(f"/api/v1/shows/{self.showCursor}/uninterested", headers=headers)
+        if self.showCursor:
+            self.client.post(f"/api/v1/shows/{self.showCursor}/uninterested", headers=headers)
 
     @task(2)
-    def post_task_5(self):
-        """백엔드 서버 API POST 5 : 아티스트 구독하기"""
+    def post_task_7(self):
+        """백엔드 서버 API POST 7 : 아티스트 관심 등록"""
         headers = {'Authorization': f'Bearer {self.token}'}
-        self.client.post(f"/api/v1/shows/{self.showCursor}/interests", headers=headers)
+        if self.showCursor:
+            self.client.post(f"/api/v1/shows/{self.showCursor}/interests", headers=headers)
 
     @task(2)
-    def post_task_5(self):
-        """백엔드 서버 API POST 5 : 아티스트 구독하기"""
+    def post_task_8(self):
+        """백엔드 서버 API POST 8 : 공연 티켓팅 알림 등록/취소"""
         if self.showCursor:
             headers = {'Authorization': f'Bearer {self.token}'}
             params = {"ticketingApiType" : "NORMAL"}
             body = {"alertTimes" : self.ALERT_TIMES[random.randint(0, len(self.ALERT_TIMES) - 1)]}
             self.client.post(f"/api/v1/shows/{self.showCursor}/alert", params=params, json=body, headers=headers)
-        else:
-             print("cannot call /api/v1/shows/(showId)/alert")
