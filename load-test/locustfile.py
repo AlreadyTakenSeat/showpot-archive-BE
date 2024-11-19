@@ -124,7 +124,7 @@ class UserBehavior(HttpUser):
         headers = {'Authorization': f'Bearer {self.token}'}
         params = {"size" : 30}
         if self.artistCursor:
-             params["cursorId" : self.artistCursor]
+             params["cursorId"] = self.artistCursor
         response = self.client.get("/api/v1/artists/unsubscriptions", params=params, headers=headers)
         if response.status_code < 300:
                 response = response.json().get('data')
@@ -295,7 +295,7 @@ class UserBehavior(HttpUser):
         """백엔드 서버 API POST 5 : 아티스트 구독하기"""
         headers = {'Authorization': f'Bearer {self.token}'}
         if self.artistCursor:
-            body = {'artistIds' : [self.artistCursor]}
+            body = {'spotifyArtistIds' : [self.artistCursor]}
             self.client.post("/api/v1/artists/subscribe", json=body, headers=headers)
 
     @task(2)
