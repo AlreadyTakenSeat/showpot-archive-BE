@@ -8,3 +8,9 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
     - targets: ['ip:port']
+
+  - job_name: 'alarm'
+    scrape_interval: 15s
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+    - targets: ['ip:port']

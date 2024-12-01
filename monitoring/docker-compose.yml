@@ -10,6 +10,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_config:/etc/prometheus
       - prometheus_data:/prometheus
+    networks:
+      - monitor
 
   grafana:
     image: grafana/grafana
@@ -17,7 +19,16 @@ services:
     restart: always
     ports:
       - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitor
 
 volumes:
   prometheus_data: null
   prometheus_config: null
+  grafana_data: null
+
+networks:
+  monitor:
+    driver: bridge
