@@ -1,0 +1,23 @@
+services:
+  prometheus:
+  image: prom/prometheus
+  container_name: prometheus
+  restart: always
+  user: root
+  ports:
+    - 9090:9090
+  volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    - prometheus_config:/etc/prometheus
+    - prometheus_data:/prometheus
+
+grafana:
+  image: grafana/grafana
+  container_name: grafana
+  restart: always
+  ports:
+    - 3000:3000
+
+volumes:
+  prometheus_data: null
+  prometheus_config: null
